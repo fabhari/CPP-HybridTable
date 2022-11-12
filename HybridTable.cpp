@@ -53,23 +53,31 @@ HybridTable::~HybridTable()
 HybridTable::HybridTable(const HybridTable& other)
 {
     list_ = nullptr;
-    int narray_size = other.getArraySize();
-    array_ = new int[narray_size]{0};
-
-    std::copy(other.array_, other.array_ + narray_size, array_);
-
+    ncntr_array = other.getArraySize();
+    // cout<<"copy constructor : ";
+    // cout<<ncntr_array << "\n";
+    array_ = new int[ncntr_array]{0};
+    std::copy(other.array_, other.array_ + ncntr_array, array_);
+    
    if(other.getTotalSize() > other.getArraySize())
    {
     list_ = deepClone(other.list_);
-   }
-
-    
+   }    
 }
 
 HybridTable& HybridTable::operator=(const HybridTable& other)
 {
-    // IMPLEMENT ME
-    cout<<"operator Overloading\n";
+   list_ = nullptr;
+    ncntr_array = other.getArraySize();
+    // cout<<"copy constructor : ";
+    // cout<<ncntr_array << "\n";
+    array_ = new int[ncntr_array]{0};
+    std::copy(other.array_, other.array_ + ncntr_array, array_);
+    
+   if(other.getTotalSize() > other.getArraySize())
+   {
+    list_ = deepClone(other.list_);
+   } 
     return *this;
 }
 
@@ -121,7 +129,6 @@ void HybridTable::set(int i, int val)
         }
     }
     else {
-        cout<<"pushing into array : " <<"\n";
         array_[i] = val;
     }
 
@@ -196,7 +203,6 @@ Node* HybridTable::getInsertPosition(int nIndex, bool findIndex) const
         else {
             if (pforward_ptr->index_ > nIndex)
             {
-                cout<<"greater";
                 pforward_ptr = pbackward_ptr;
                 break;
             }
@@ -217,7 +223,7 @@ Node* HybridTable::deepClone(Node* phead_node) const
     Node* current = phead_node;
     Node* newList = nullptr;
     Node* tail = nullptr;
-    
+
     while (current != nullptr)
     {
         if (newList == nullptr)
