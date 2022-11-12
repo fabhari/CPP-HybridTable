@@ -27,7 +27,7 @@ Node::~Node()
 HybridTable::HybridTable()
 {
     // IMPLEMENT ME
-    array_ = new int[INITIAL_ARRAY_SIZE] { 0, 0, 0, 0 };
+    array_ = new int[INITIAL_ARRAY_SIZE ] { 0, 0, 0, 0   };
     list_ = nullptr;
 }
 
@@ -67,6 +67,8 @@ HybridTable::HybridTable(const HybridTable& other)
 
 HybridTable& HybridTable::operator=(const HybridTable& other)
 {
+ if(this != &other)
+ {
    list_ = nullptr;
     ncntr_array = other.getArraySize();
     // cout<<"copy constructor : ";
@@ -78,13 +80,14 @@ HybridTable& HybridTable::operator=(const HybridTable& other)
    {
     list_ = deepClone(other.list_);
    } 
+ }
     return *this;
 }
 
 int HybridTable::get(int i) const
 {
 
-    if (i < getArraySize() && i > -1) {
+    if (i < getArraySize()  && i > -1) {
         return array_[i];
     }
     else {
@@ -98,8 +101,8 @@ int HybridTable::get(int i) const
 
 void HybridTable::set(int i, int val)
 {
-
-    if (i > getArraySize() || i < 0) {
+    if (i > getArraySize()  || i < 0) 
+    {
         Node* new_node = new Node(i, val);
         if (list_ != nullptr) 
         {
