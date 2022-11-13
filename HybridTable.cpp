@@ -55,8 +55,8 @@ HybridTable::HybridTable(const HybridTable& other)
 {
     list_ = nullptr;
     ncntr_array = other.getArraySize();
-    // cout<<"copy constructor : ";
-    // cout<<ncntr_array << "\n";
+    // //cout<<<<"copy constructor : ";
+    // //cout<<<<ncntr_array << "\n";
     array_ = new int[ncntr_array]{0};
     std::copy(other.array_, other.array_ + ncntr_array, array_);
 
@@ -74,8 +74,8 @@ HybridTable& HybridTable::operator=(const HybridTable& other)
  {
    list_ = nullptr;
     ncntr_array = other.getArraySize();
-    // cout<<"copy constructor : ";
-    // cout<<ncntr_array << "\n";
+    // //cout<<<<"copy constructor : ";
+    // //cout<<<<ncntr_array << "\n";
     array_ = new int[ncntr_array]{0};
     std::copy(other.array_, other.array_ + ncntr_array, array_);
     
@@ -224,20 +224,22 @@ void HybridTable::setResizedArray(int i, int val,  Node* pPos_start , int nNewSi
     std::copy(array_, array_ + ncntr_array, new_array_);
 
     ncntr_array = nNewSize;
-    delete array_;
-    array_ = nullptr;
-
-    if(pPos_start != nullptr)
-    {
-        int indexCntr = 0;
-
-        cout<<"\nNew Element : " << i <<" = ";
 
         while(pPos_start != nullptr)
         {
             new_array_[pPos_start->index_] = pPos_start->val_;
 
-            cout<<pPos_start->index_<<" " ;
+            //cout<<<<pPos_start->index_<<" " ;
+
+        int indexCntr = 0;
+
+        //cout<<<<"\nNew Element : " << i <<" = ";
+
+        while(pPos_start != nullptr)
+        {
+            new_array_[pPos_start->index_] = pPos_start->val_;
+
+            //cout<<<<pPos_start->index_<<" " ;
 
             pPos_start = pPos_start->next_;
         }
@@ -245,7 +247,6 @@ void HybridTable::setResizedArray(int i, int val,  Node* pPos_start , int nNewSi
     new_array_[i] = val;
     array_ = new_array_;
 }
-
 
 bool HybridTable::checkifArrayCanResize(int i, int val)
 {
@@ -255,50 +256,70 @@ bool HybridTable::checkifArrayCanResize(int i, int val)
     
     int ntentative_sum = ncntr_array +  1  + (pPostive_Start  == nullptr ? 0 : npositiveElement);
 
-    cout<<"\nMax Power: "<< i <<" : "<< nNewSize <<"\n";
-    cout<<"\nTen_sum  : "<< i <<" : "<< ntentative_sum <<"\n";
+    cout<<"Tentaive number : " << ntentative_sum;
+    //cout<<<<"\nMax Power: "<< i <<" : "<< nNewSize <<"\n";
+    //cout<<<<"\nTen_sum  : "<< i <<" : "<< ntentative_sum <<"\n";
     double dSizePerc = (double)ntentative_sum/nNewSize;
     
     if(dSizePerc >= 0.75)
     {
-        cout<<"\nResizing the array\n";
+        //cout<<<<"\nResizing the array\n";
         setResizedArray(i, val, pPostive_Start , nNewSize );
+        deleteList(pPostive_Start);
         return true;
     }    
     return false;
 }
 
+void HybridTable::deleteList(Node* pPos_StartNode)
+{
+    Node* pPosref = pPos_StartNode;
+    while(pPosref != nullptr)
+    {        
+        deleteNode(pPosref->index_);
+        pPosref = pPosref->next_;
+    }
+}
+
 void HybridTable::deleteNode(int index)
 {
-    cout<<list_<<"\n";
     Node* ref = list_;
-    Node* follow = list_;
-    Node* temp = nullptr;
+    Node* follow = nullptr;
+    bool elementFound = false;
+    ////cout<<<<"Intial Memory of list_ : "<<list_<<"\n";
     while(ref != nullptr)
     {
+        ////cout<<<<"Number of iteration:"<<"\n";
         if(ref->index_ == index)
         {
-           temp = ref;
-            if(ref->next_!=nullptr)
-            {                
-                follow->next_ = ref->next_;                    
+            if(follow != nullptr)
+            {
+                follow->next_ = ref->next_; 
             }
+            else
+            {
+                list_ = ref->next_;
+            }
+            elementFound = true;
             break;  
         }
         follow = ref;
         ref = ref->next_;
     }
-    cout<<temp->index_<<"\n";
-    cout<<temp->val_<<"\n";
-    delete temp;  
-    temp = nullptr; 
-    cout<<"Memory of temp : "<<temp;
-    cout<<"Memory of list_ : "<<list_->next_;
+  
+    if(elementFound)
+    {
+       // //cout<<<<"element Found"<<"\n";
+        delete ref;
+        ref = nullptr;
+        
+    }
+    // //cout<<<<"Memory of temp : "<<ref<<"\n";
+    // //cout<<<<"Memory of list_ : "<<list_<<"\n";
 }
 
 void HybridTable::set(int i, int val)
-{
-   
+{ 
     if(i > -1)
     {
         if(i < getArraySize())
@@ -308,21 +329,18 @@ void HybridTable::set(int i, int val)
         }
         else
         {
-        //     cout<<"\n\n =================\nSET METHOD\n=============\n";
-        //    if(checkifArrayCanResize(i, val))
-        //     {
-        //         cout<<"\nTrying to Resize Array\n";
-        //         cout<<"\n\n New Element Added : \n"<<toString() <<"\n-- End --\n\n";
-        //        return; 
-        //     }
+            //cout<<<<"\n\n =================\nSET METHOD\n=============\n";
+           if(checkifArrayCanResize(i, val))
+            {
+                //cout<<<<"\nTrying to Resize Array\n";
+                //cout<<<<"\n\n New Element Added : \n"<<toString() <<"\n-- End --\n\n";
+               return; 
+            }
         }
         
     }
-    //cout<<"\n\n Before Element Added : \n"<<toString() <<"\n-- End --\n\n";
     setList(i, val);
-      //cout<<"after of list_ : "<<list_->next_;
-    //deleteNode(i);
-    //cout<<"\nAfter Element Added : \n"<<toString() <<"\n-- End --\n\n";
+    //cout<<<<"\nAfter Element Added : \n"<<toString() <<"\n-- End --\n\n";
 }
 
 string HybridTable::toString() const
