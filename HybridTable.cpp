@@ -5,6 +5,7 @@ Node::Node(int index, int val)
     // IMPLEMENT ME
     index_ = index;
     val_ = val;
+    next_ = nullptr;
 }
 
 Node::Node(int index, int val, Node* next)
@@ -58,6 +59,8 @@ HybridTable::HybridTable(const HybridTable& other)
     // cout<<ncntr_array << "\n";
     array_ = new int[ncntr_array]{0};
     std::copy(other.array_, other.array_ + ncntr_array, array_);
+
+    
     
    if(other.getTotalSize() > other.getArraySize())
    {
@@ -93,39 +96,67 @@ int HybridTable::get(int i) const
     else {
         Node* get_node = getInsertPosition(i, true);
         int num = get_node == nullptr ? 0 : get_node->val_;
-        //return (const int)num;
         return num;
     }
     return 0;
 }
+
+Node* HybridTable::getInsertPosition(int nIndex, bool findIndex) const
+{
+
+    Node* pforward_ptr = list_;
+
+    while (pforward_ptr != nullptr) 
+    {
+        if (pforward_ptr->index_ == nIndex) 
+        {
+            break;
+        }
+        pforward_ptr = pforward_ptr->next_;
+    }
+    return pforward_ptr;
+}
+
 void HybridTable::setList(int i, int val)
 {
-    Node* new_node = new Node(i, val);
     if (list_ != nullptr) 
     {
-        //Node* prev_node = const_cast<Node*>(getInsertPosition(i, false));
-        Node* prev_node = getInsertPosition(i, false);
-        prev_node = prev_node == nullptr ? list_end : prev_node;
-        if(prev_node->index_ < i)
-        {
-            new_node->next_ = prev_node->next_;
-            prev_node->next_ = new_node;
-            list_end = new_node;
+        Node* newNode = nullptr;
+        Node* refList = list_;
+        Node* prevList = nullptr;
 
-        }
-        else if(prev_node->index_  > i)
+        while (refList != nullptr) 
         {
-            new_node->next_ =  list_;
-            list_ = new_node;
-        }
-        else
-        {
-            prev_node->val_ = val;
+            if (i == refList->index_ ) 
+            {
+                refList->val_ = val;
+                break;
+            }        
+            else if( i < refList->index_ )
+            {
+                newNode = new Node(i, val, refList);
+                if(prevList != nullptr)
+                {
+                    prevList->next_ = newNode;
+                }
+                else
+                {
+                   list_ = newNode;
+                }
+               break;
+            }
+            else if (refList->next_ == nullptr) 
+            {
+                refList->next_ = new Node(i, val, nullptr);
+                break;
+            }
+            prevList = refList;
+            refList = refList->next_;
         }
     }
-    else {
-        list_ = new_node;
-        list_end  = list_;
+    else 
+    {
+        list_ = new Node(i, val);
     }
 }
 
@@ -237,6 +268,34 @@ bool HybridTable::checkifArrayCanResize(int i, int val)
     return false;
 }
 
+void HybridTable::deleteNode(int index)
+{
+    cout<<list_<<"\n";
+    Node* ref = list_;
+    Node* follow = list_;
+    Node* temp = nullptr;
+    while(ref != nullptr)
+    {
+        if(ref->index_ == index)
+        {
+           temp = ref;
+            if(ref->next_!=nullptr)
+            {                
+                follow->next_ = ref->next_;                    
+            }
+            break;  
+        }
+        follow = ref;
+        ref = ref->next_;
+    }
+    cout<<temp->index_<<"\n";
+    cout<<temp->val_<<"\n";
+    delete temp;  
+    temp = nullptr; 
+    cout<<"Memory of temp : "<<temp;
+    cout<<"Memory of list_ : "<<list_->next_;
+}
+
 void HybridTable::set(int i, int val)
 {
    
@@ -249,18 +308,21 @@ void HybridTable::set(int i, int val)
         }
         else
         {
-            cout<<"\n\n =================\nSET METHOD\n=============\n";
-           if(checkifArrayCanResize(i, val))
-            {
-                cout<<"\nTrying to Resize Array\n";
-               return; 
-            }
+        //     cout<<"\n\n =================\nSET METHOD\n=============\n";
+        //    if(checkifArrayCanResize(i, val))
+        //     {
+        //         cout<<"\nTrying to Resize Array\n";
+        //         cout<<"\n\n New Element Added : \n"<<toString() <<"\n-- End --\n\n";
+        //        return; 
+        //     }
         }
         
     }
-    
+    //cout<<"\n\n Before Element Added : \n"<<toString() <<"\n-- End --\n\n";
     setList(i, val);
-    cout<<"\n\n New Element Added : \n"<<toString() <<"\n-- End --\n\n";
+      //cout<<"after of list_ : "<<list_->next_;
+    //deleteNode(i);
+    //cout<<"\nAfter Element Added : \n"<<toString() <<"\n-- End --\n\n";
 }
 
 string HybridTable::toString() const
@@ -311,36 +373,6 @@ int HybridTable::getTotalSize() const
     }
     int ntotal_count = ncntr_array + nlist_refcounter;
     return ntotal_count;
-}
-
-Node* HybridTable::getInsertPosition(int nIndex, bool findIndex) const
-{
-
-    Node* pforward_ptr = list_;
-
-    Node * pbackward_ptr = nullptr;
-    while (pforward_ptr != nullptr) {
-        if (findIndex) {
-            if (pforward_ptr->index_ == nIndex) {
-                break;
-            }
-        }
-        else {
-            if (pforward_ptr->index_ > nIndex)
-            {
-                pforward_ptr = pbackward_ptr;
-                break;
-            }
-            else if (pforward_ptr->index_ == nIndex)
-            {
-                break;
-            }
-        }
-        pbackward_ptr = pforward_ptr;
-        pforward_ptr = pforward_ptr->next_;
-
-    }
-    return pforward_ptr;
 }
 
 Node* HybridTable::deepClone(Node* phead_node) const
