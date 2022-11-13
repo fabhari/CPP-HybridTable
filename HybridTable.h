@@ -4,6 +4,7 @@
 #include<iostream>
 #include<cstring>
 #include <string>
+#include <cmath>
 using std::string;
 using namespace std;
 class Node {
@@ -84,6 +85,7 @@ private:
 
 	int* array_; // pointer to array part
 	Node* list_; // pointer to head of list part
+	int npositiveElement = 0;
 
 	// add other member variables if required
 	// Maintain Reference Counter for array_ size
@@ -91,7 +93,18 @@ private:
 	// add other member functions if required
 	Node* getInsertPosition(int nindex,bool findIndex) const;
 	Node* deepClone(Node* phead_node) const;
-	Node* list_end;
+	void setList(int i ,int val);
+	void setArray(int i, int val);
+	int getNearestPower(int i);
+	Node* getPostiveStartNode(int nPower,int i);
+	bool checkifArrayCanResize(int i, int val);
+	void deleteList(Node * StartNode);
+	void deleteNode(int index);
+	void setResizedArray(int i, int val, Node* Startpos, int nNewSize);
+	
+	
+//	void setResizedArray(int i, int val Node* pPos_start i
+
 
 };
 
