@@ -1,175 +1,206 @@
 #include "HybridTable.h"
 
+//===Node Constructor=== 
 Node::Node(int index, int val) :index_(index),val_(val),next_(nullptr) {}
 
-Node::Node(int index, int val, Node* next)
-{
-    // IMPLEMENT ME
-    index_ = index;
-    val_ = val;
-    next_ = next;
-}
+//===Node Constructor=== 
+Node::Node(int index, int val, Node* next): index_(index),val_(val),next_(next) {}
 
+//===Node Destructor=== 
 Node::~Node()
 {
-    // IMPLEMENT ME
-    index_ = 0;
+    next_ = nullptr;    
     val_ = 0;
-    //delete next_;
-    next_ = nullptr;
+    index_ = 0;
 }
 
+/*==================================
+Function : HybridTable Constructor
+==================================
+Description : Initialize memory for array_ and  assigns list_ to nullptr */
 HybridTable::HybridTable()
 {
-    // IMPLEMENT ME
-    array_ = new int[INITIAL_ARRAY_SIZE ] { 0 };
+    array_ = new int[ng_Arraysize] { 0 };
     list_ = nullptr;
 }
 
+/*==================================
+Function : HybridTable Parameterized Constructor
+Arguments : *p (New array)  |  n (Size of New Array)
+==================================
+Description : Initialize memory for array_ copy the pointer p to array_ 
+using standard copy method - Copy bytes from one mem loc to another
+ and  assigns list_ to nullptr */
 HybridTable::HybridTable(const int* p, int n)
 {
-    // IMPLEMENT ME
-    array_ = new int[n] { 0 };
-    ncntr_array = n;
-    std::copy(p, p + n, array_);
-    //delete list_
-    list_ = nullptr;
+        array_ = new int[n] { 0 };
+        ng_Arraysize = n;
+        std::copy(p, p + n, array_);
+        list_ = nullptr;
 }
 
+/*==================================
+Function : HybridTable Destructor
+==================================
+Description : Releases all memory of Node & aray_  Pointer and set it to nullptr */
 HybridTable::~HybridTable()
 {
-    
-    // while(list_ != nullptr)
-    // {
-    //      list_->next_;
-    // }
-    delete[] array_;
-    array_ = nullptr;
+    while(list_ != nullptr)
+    {
+        Node * del_refNode = list_;
+        list_ = list_->next_;
+        delete del_refNode;
+        del_refNode = nullptr;
+    }
     delete list_;
     list_ = nullptr;
+    delete[] array_;
+    array_ = nullptr;
 }
 
+/*==================================
+Function : HybridTable Copy Constructor
+Arguments : other (Address of HybridTable Object )
+Return : HybridTable object
+==================================
+Description : Clones array_ and list_ */
 HybridTable::HybridTable(const HybridTable& other)
 {
     list_ = nullptr;
-    ncntr_array = other.getArraySize();
-    array_ = new int[ncntr_array]{0};
-    std::copy(other.array_, other.array_ + ncntr_array, array_);
-
+    ng_Arraysize = other.getArraySize();
+    if(other.getTotalSize() > ng_Arraysize)
+        list_ = clone_List_(other.list_);
+    array_ = new int[ng_Arraysize]{0};
+    std::copy(other.array_, other.array_ + ng_Arraysize, array_);
     
-    
-   if(other.getTotalSize() > other.getArraySize())
-   {
-    list_ = deepClone(other.list_);
-   }    
+   
 }
 
+/*==================================
+Function : HybridTable Operator overloading
+Arguments : other ( Address of HybridTable Object  ) 
+Return : HybridTable Object
+==================================
+Description : Clones array_ and list_ */
 HybridTable& HybridTable::operator=(const HybridTable& other)
 {
  if(this != &other)
  {
-   list_ = nullptr;
-    ncntr_array = other.getArraySize();
-    array_ = new int[ncntr_array]{0};
-    std::copy(other.array_, other.array_ + ncntr_array, array_);
-    
-   if(other.getTotalSize() > other.getArraySize())
-   {
-    list_ = deepClone(other.list_);
-   } 
+    list_ = nullptr;
+    ng_Arraysize = other.getArraySize();
+    if(other.getTotalSize() > ng_Arraysize)
+        list_ = clone_List_(other.list_);
+    array_ = new int[ng_Arraysize]{0};
+    std::copy(other.array_, other.array_ + ng_Arraysize, array_);
  }
     return *this;
 }
 
+/*==================================
+Function : get
+Arguments : i - index of Element to be retrived
+Return : Value of index i
+==================================
+Description : Retreives the Element from array_ / list_ */
 int HybridTable::get(int i) const
 {
-    if (i < 0 || i >= getArraySize())
+    if (i < 0 || i >= getArraySize()) // from list
     {
-        Node* get_node = getInsertPosition(i, true);
-        int num = get_node == nullptr ? 0 : get_node->val_;
-        return num;
-    }else
-    {
-        return array_[i];
+        Node* get_node = RetreiveNode(i);
+        if(get_node == nullptr)
+            return 0;
+        else
+            return get_node->val_;   
     }
-     
-   
+    else
+        return array_[i]; // from array
     return 0;
 }
 
-Node* HybridTable::getInsertPosition(int nIndex, bool findIndex) const
+/*==================================
+Function : pushIntoList
+Arguments : i - index , val - value
+==================================
+Description : Pushes the element sorted increasing order with index */
+
+void HybridTable::pushIntoList(int i, int val)
 {
-
-    Node* pforward_ptr = list_;
-
-    while (pforward_ptr != nullptr) 
-    {
-        if (pforward_ptr->index_ == nIndex) 
-        {
-            break;
-        }
-        pforward_ptr = pforward_ptr->next_;
-    }
-    return pforward_ptr;
-}
-
-void HybridTable::setList(int i, int val)
-{
-    if (list_ != nullptr) 
-    {
-        Node* newNode = nullptr;
-        Node* refList = list_;
-        Node* prevList = nullptr;
-
-        while (refList != nullptr) 
-        {
-            if (i == refList->index_ ) 
-            {
-                refList->val_ = val;
-                break;
-            }        
-            else if( i < refList->index_ )
-            {
-                newNode = new Node(i, val, refList);
-                if(prevList != nullptr)
-                {
-                    prevList->next_ = newNode;
-                }
-                else
-                {
-                   list_ = newNode;
-                }
-               break;
-            }
-            else if (refList->next_ == nullptr) 
-            {
-                refList->next_ = new Node(i, val, nullptr);
-                break;
-            }
-            prevList = refList;
-            refList = refList->next_;
-        }
-    }
-    else 
+    if(list_==nullptr) 
     {
         list_ = new Node(i, val);
+        return;
     }
+    else
+    {
+        Node* pItrNode = list_;
+        Node* pPrevItrNode = nullptr;
+        while(pItrNode != nullptr) 
+        {
+            if(i == pItrNode->index_) 
+            {
+                pItrNode->val_ = val; break;
+            }        
+            else if(i < pItrNode->index_)
+            {                
+                if(pPrevItrNode != nullptr)
+                    pPrevItrNode->next_ = new Node(i, val, pItrNode);
+                else
+                   list_ = new Node(i, val, pItrNode); // Modify the head
+                break;
+            }
+            else if(pItrNode->next_ == nullptr) 
+            {
+                pItrNode->next_ = new Node(i, val, nullptr);
+                break;
+            }
+            pPrevItrNode = pItrNode;
+            pItrNode = pItrNode->next_;
+        }
+        pPrevItrNode = pItrNode = nullptr; // Remove Reference
+    }    
 }
 
-void HybridTable::setArray(int i, int val)
-{
-    array_[i] = val;
-}
 
-int HybridTable::getNearestPower(int i)
+/*==================================
+Function : findPower
+Arguments : index_ - Index of Element 
+==================================
+Description : Find the nearest power to the index i Eg : Index:6 ,Power:8   & Index : 10 ,Power : 16*/
+int HybridTable::findPower(int index_)
 {
  	int minPow  = 3;
-	while (pow(BASEPOWER, minPow) <= i)
+	while (pow(BASEPOWER, minPow) <= index_)
         minPow++;
 	minPow = pow(BASEPOWER, minPow);
     return minPow;
 }
 
+/*==================================
+Function : RetreiveNode
+Arguments : nInd - Index of Element to be retrived
+==================================
+Description : Retreives the Node Pointer if Element Exist or nullptr on the other case*/
+Node* HybridTable::RetreiveNode(int nInd) const
+{
+    Node* pReflist = list_;
+    while (pReflist != nullptr) 
+    {
+        if (pReflist->index_ == nInd) 
+        {
+            break;
+        }
+        pReflist = pReflist->next_;
+    }
+    return pReflist;
+}
+
+
+
+/*==================================
+Function : getPostiveStartNode
+Arguments : nPower - Power of 2 , i - Index of Element 
+==================================
+Description : Creates a new Node which has positive values lying withing the power range */
 Node* HybridTable::getPostiveStartNode(int nPower, int i)
 {
     Node* pPNodes = nullptr;
@@ -185,7 +216,7 @@ Node* HybridTable::getPostiveStartNode(int nPower, int i)
             pPNodes = nullptr;
             break;
         }
-        if(pItr_node->index_ >= ncntr_array && pItr_node->index_ < nPower)
+        if(pItr_node->index_ >= ng_Arraysize && pItr_node->index_ < nPower)
         {
             nPosEleCount++;            
 
@@ -210,9 +241,9 @@ void HybridTable::setResizedArray(int i, int val,  Node* pPos_start , int nNewSi
 {
     int* new_array_ = new int[nNewSize -1 ]{0};
 
-    std::copy(array_, array_ + ncntr_array, new_array_);
+    std::copy(array_, array_ + ng_Arraysize, new_array_);
 
-    ncntr_array = nNewSize;
+    ng_Arraysize = nNewSize;
 
         while(pPos_start != nullptr)
         {
@@ -233,11 +264,11 @@ void HybridTable::setResizedArray(int i, int val,  Node* pPos_start , int nNewSi
 
 bool HybridTable::checkifArrayCanResize(int i, int val)
 {
-    int nNewSize = getNearestPower(i);
+    int nNewSize = findPower(i);
 
     Node* pPostive_Start = getPostiveStartNode(nNewSize, i);
     
-    int ntentative_sum = ncntr_array +  1  + (pPostive_Start  == nullptr ? 0 : nPosEleCount);
+    int ntentative_sum = ng_Arraysize +  1  + (pPostive_Start  == nullptr ? 0 : nPosEleCount);
 
     double dSizePerc = (double)ntentative_sum/nNewSize;
     
@@ -298,7 +329,7 @@ void HybridTable::set(int i, int val)
     {
         if(i < getArraySize())
         {
-            setArray(i, val);
+            array_[i] = val;
             return;
         }
         else
@@ -310,7 +341,7 @@ void HybridTable::set(int i, int val)
         }
         
     }
-    setList(i, val);
+    pushIntoList(i, val);
 }
 
 string HybridTable::toString() const
@@ -347,7 +378,7 @@ string HybridTable::toString() const
 int HybridTable::getArraySize() const
 {
 
-    return ncntr_array;
+    return ng_Arraysize;
 }
 
 int HybridTable::getTotalSize() const
@@ -359,11 +390,11 @@ int HybridTable::getTotalSize() const
         ptemp_list = ptemp_list->next_;
         nlist_refcounter++;
     }
-    int ntotal_count = ncntr_array + nlist_refcounter;
+    int ntotal_count = ng_Arraysize + nlist_refcounter;
     return ntotal_count;
 }
 
-Node* HybridTable::deepClone(Node* phead_node) const
+Node* HybridTable::clone_List_(Node* phead_node) const
 {
     Node* current = phead_node;
     Node* newList = nullptr;
@@ -371,14 +402,15 @@ Node* HybridTable::deepClone(Node* phead_node) const
 
     while (current != nullptr)
     {
+        Node* New_Node = new Node(current->index_,current->val_);
         if (newList == nullptr)
         {
-            newList = new Node(current->index_,current->val_);
+            newList = New_Node;
             tail = newList;
         }
         else 
         {
-            tail->next_ = new Node (current->index_,current->val_) ; 
+            tail->next_ = New_Node;
             tail = tail->next_;
         }
         current = current->next_;   
