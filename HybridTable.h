@@ -1,10 +1,12 @@
 #ifndef HYBRIDTABLE_H_
 #define HYBRIDTABLE_H_
-
-#include<iostream>
 #include<cstring>
 #include <string>
+
 #include <cmath>
+
+
+#include<iostream>
 using std::string;
 using namespace std;
 class Node {
@@ -98,18 +100,19 @@ private:
 	Node* RetreiveNode(int nindex) const;	
 
 	//Pushing the element into the list_
-	void pushIntoList(int i ,int val);
+	void pushIntoList(int nindex_ ,int nval);
 
 	//To find the nearest power of the index i
-	int findPower(int i);
+	int findPower(int nindex_);
 	
 	//Get NewList starting Pointer;
-	Node* RetreiveAllPostiveNode(int nPower,int i,int &RetreiveAllPostiveNode);
-	bool checkifArrayCanResize(int i, int val);
-	void deleteList(Node * StartNode);
-	void deleteNode(int index);
-	void setResizedArray(int i, int val, Node* Startpos, int nNewSize);
+	Node* RetreiveAllPosNode(int nPower,int nindex_,int &RetreiveAllPostiveNode);
 
+	//extended Array memory and shift elements from list to array
+	void ExtendArrayMemory(int index_, int val, Node* Startpos, int nNewSize);
+
+	//Drop a node a element with its index and update the list_
+	void DropNodeElement(int index_);
 
 
 };
