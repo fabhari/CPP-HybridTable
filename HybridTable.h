@@ -85,21 +85,26 @@ private:
 
 	int* array_; // pointer to array part
 	Node* list_; // pointer to head of list part
-	
-	int nPosEleCount = 0; // Holds the value of Total Number of Positive ELement in the list_
 
 	// add other member variables if required
 	// Maintain Reference Counter for array_ size
-	int ncntr_array = INITIAL_ARRAY_SIZE;
-	static constexpr int BASEPOWER = 2; 
+	int ng_Arraysize = INITIAL_ARRAY_SIZE; // n- integer ; g- global
+	static constexpr int BASEPOWER = 2; // Const for Power of 2 ^ 2
 
-	Node* getInsertPosition(int nindex,bool findIndex) const;
-	Node* deepClone(Node* phead_node) const;
+	//Clones the list_ pointer
+	Node* clone_List_(Node* phead_node) const;
+
+	//Gets the Respective Node Pointer matching the index or Default is nullptr
+	Node* RetreiveNode(int nindex) const;	
+
+	//Pushing the element into the list_
+	void pushIntoList(int i ,int val);
+
+	//To find the nearest power of the index i
+	int findPower(int i);
 	
-	void setList(int i ,int val);
-	void setArray(int i, int val);
-	int getNearestPower(int i);
-	Node* getPostiveStartNode(int nPower,int i);
+	//Get NewList starting Pointer;
+	Node* RetreiveAllPostiveNode(int nPower,int i,int &RetreiveAllPostiveNode);
 	bool checkifArrayCanResize(int i, int val);
 	void deleteList(Node * StartNode);
 	void deleteNode(int index);

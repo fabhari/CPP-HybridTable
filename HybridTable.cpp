@@ -33,10 +33,10 @@ using standard copy method - Copy bytes from one mem loc to another
  and  assigns list_ to nullptr */
 HybridTable::HybridTable(const int* p, int n)
 {
-        array_ = new int[n] { 0 };
-        ng_Arraysize = n;
-        std::copy(p, p + n, array_);
-        list_ = nullptr;
+    array_ = new int[n] { 0 };
+    ng_Arraysize = n;
+    std::copy(p, p + n, array_);
+    list_ = nullptr;
 }
 
 /*==================================
@@ -106,11 +106,14 @@ int HybridTable::get(int i) const
 {
     if (i < 0 || i >= getArraySize()) // from list
     {
+        int Value = 0;
         Node* get_node = RetreiveNode(i);
         if(get_node == nullptr)
-            return 0;
+            Value = 0;
         else
-            return get_node->val_;   
+            Value = get_node->val_;   
+        get_node = nullptr;
+        return Value;
     }
     else
         return array_[i]; // from array
@@ -138,25 +141,26 @@ void HybridTable::pushIntoList(int i, int val)
         {
             if(i == pItrNode->index_) 
             {
-                pItrNode->val_ = val; break;
+                pItrNode->val_=val; break;
             }        
             else if(i < pItrNode->index_)
             {                
                 if(pPrevItrNode != nullptr)
-                    pPrevItrNode->next_ = new Node(i, val, pItrNode);
+                    pPrevItrNode->next_=new Node(i, val, pItrNode);
                 else
                    list_ = new Node(i, val, pItrNode); // Modify the head
                 break;
             }
-            else if(pItrNode->next_ == nullptr) 
+            else if(pItrNode->next_==nullptr) 
             {
-                pItrNode->next_ = new Node(i, val, nullptr);
+                pItrNode->next_=new Node(i, val, nullptr);
                 break;
             }
-            pPrevItrNode = pItrNode;
-            pItrNode = pItrNode->next_;
+            pPrevItrNode=pItrNode;
+            pItrNode=pItrNode->next_;
         }
-        pPrevItrNode = pItrNode = nullptr; // Remove Reference
+        pPrevItrNode = nullptr; // Remove Reference
+        pItrNode = nullptr;
     }    
 }
 
@@ -200,13 +204,11 @@ Node* HybridTable::RetreiveNode(int nInd) const
 Function : getPostiveStartNode
 Arguments : nPower - Power of 2 , i - Index of Element 
 ==================================
-Description : Creates a new Node which has positive values lying withing the power range */
-Node* HybridTable::getPostiveStartNode(int nPower, int i)
+Description : Creates a new Node pointer which has onlu positive values lying withing the power range */
+Node* HybridTable::RetreiveAllPostiveNode(int nPower, int i, int &PosEleCount)
 {
     Node* pPNodes = nullptr;
     Node* pItr_PNodes = nullptr;
-
-    nPosEleCount = 0;
     Node* pItr_node = list_;
 
     while(pItr_node != nullptr)
@@ -218,7 +220,7 @@ Node* HybridTable::getPostiveStartNode(int nPower, int i)
         }
         if(pItr_node->index_ >= ng_Arraysize && pItr_node->index_ < nPower)
         {
-            nPosEleCount++;            
+            PosEleCount++;            
 
             if(pPNodes == nullptr)
             {                
@@ -237,13 +239,12 @@ Node* HybridTable::getPostiveStartNode(int nPower, int i)
     return pPNodes;
 }
 
-void HybridTable::setResizedArray(int i, int val,  Node* pPos_start , int nNewSize)
+void HybridTable::setResizedArray(int i, int val,  Node* pPos_start , int nNewArraySize)
 {
-    int* new_array_ = new int[nNewSize -1 ]{0};
-
+    int* new_array_ = new int[nNewArraySize -1 ]{0};
     std::copy(array_, array_ + ng_Arraysize, new_array_);
 
-    ng_Arraysize = nNewSize;
+    ng_Arraysize = nNewArraySize;
 
         while(pPos_start != nullptr)
         {
@@ -264,17 +265,18 @@ void HybridTable::setResizedArray(int i, int val,  Node* pPos_start , int nNewSi
 
 bool HybridTable::checkifArrayCanResize(int i, int val)
 {
-    int nNewSize = findPower(i);
+    int nNewArraySize = findPower(i);
 
-    Node* pPostive_Start = getPostiveStartNode(nNewSize, i);
+    int nPosEleCount = 0; // Holds the value of Total Number of Positive ELement in the list_
+    Node* pPostive_Start = RetreiveAllPostiveNode(nNewArraySize, i, nPosEleCount);
     
     int ntentative_sum = ng_Arraysize +  1  + (pPostive_Start  == nullptr ? 0 : nPosEleCount);
 
-    double dSizePerc = (double)ntentative_sum/nNewSize;
+    double dSizePerc = (double)ntentative_sum/nNewArraySize;
     
     if(dSizePerc >= 0.75)
     {
-        setResizedArray(i, val, pPostive_Start , nNewSize );
+        setResizedArray(i, val, pPostive_Start , nNewArraySize );
         deleteList(pPostive_Start);
         return true;
     }    
@@ -352,7 +354,8 @@ string HybridTable::toString() const
 
     while(nlist_refcounter < getArraySize())
     {
-        selements += std::to_string(nlist_refcounter) + " : ";
+        selements += std::to_string(nlist_refcounter) ;
+        selements += " : ";
         selements += std::to_string(array_[nlist_refcounter]) + "\n";
 
         nlist_refcounter++;
