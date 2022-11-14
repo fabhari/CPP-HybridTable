@@ -1,12 +1,6 @@
 #include "HybridTable.h"
 
-Node::Node(int index, int val)
-{
-    // IMPLEMENT ME
-    index_ = index;
-    val_ = val;
-    next_ = nullptr;
-}
+Node::Node(int index, int val) :index_(index),val_(val),next_(nullptr) {}
 
 Node::Node(int index, int val, Node* next)
 {
@@ -28,7 +22,7 @@ Node::~Node()
 HybridTable::HybridTable()
 {
     // IMPLEMENT ME
-    array_ = new int[INITIAL_ARRAY_SIZE ] { 0, 0, 0, 0   };
+    array_ = new int[INITIAL_ARRAY_SIZE ] { 0 };
     list_ = nullptr;
 }
 
@@ -44,7 +38,11 @@ HybridTable::HybridTable(const int* p, int n)
 
 HybridTable::~HybridTable()
 {
-    // IMPLEMENT ME
+    
+    // while(list_ != nullptr)
+    // {
+    //      list_->next_;
+    // }
     delete[] array_;
     array_ = nullptr;
     delete list_;
@@ -55,8 +53,6 @@ HybridTable::HybridTable(const HybridTable& other)
 {
     list_ = nullptr;
     ncntr_array = other.getArraySize();
-    // //cout<<<<"copy constructor : ";
-    // //cout<<<<ncntr_array << "\n";
     array_ = new int[ncntr_array]{0};
     std::copy(other.array_, other.array_ + ncntr_array, array_);
 
@@ -74,8 +70,6 @@ HybridTable& HybridTable::operator=(const HybridTable& other)
  {
    list_ = nullptr;
     ncntr_array = other.getArraySize();
-    // //cout<<<<"copy constructor : ";
-    // //cout<<<<ncntr_array << "\n";
     array_ = new int[ncntr_array]{0};
     std::copy(other.array_, other.array_ + ncntr_array, array_);
     
@@ -89,15 +83,17 @@ HybridTable& HybridTable::operator=(const HybridTable& other)
 
 int HybridTable::get(int i) const
 {
-
-    if (i < getArraySize()  && i > -1) {
-        return array_[i];
-    }
-    else {
+    if (i < 0 || i >= getArraySize())
+    {
         Node* get_node = getInsertPosition(i, true);
         int num = get_node == nullptr ? 0 : get_node->val_;
         return num;
+    }else
+    {
+        return array_[i];
     }
+     
+   
     return 0;
 }
 
@@ -167,18 +163,11 @@ void HybridTable::setArray(int i, int val)
 
 int HybridTable::getNearestPower(int i)
 {
-    int npower = 2;
-    int nMaxPower = -1;
-    while(true)
-    {
-        nMaxPower = pow(2,npower) ;//2 ^ npower;
-        if(i < nMaxPower)  
-        {
-            break;
-        }
-        npower++;
-    }
-    return nMaxPower;
+ 	int minPow  = 3;
+	while (pow(BASEPOWER, minPow) <= i)
+        minPow++;
+	minPow = pow(BASEPOWER, minPow);
+    return minPow;
 }
 
 Node* HybridTable::getPostiveStartNode(int nPower, int i)
@@ -186,7 +175,7 @@ Node* HybridTable::getPostiveStartNode(int nPower, int i)
     Node* pPNodes = nullptr;
     Node* pItr_PNodes = nullptr;
 
-    npositiveElement = 0;
+    nPosEleCount = 0;
     Node* pItr_node = list_;
 
     while(pItr_node != nullptr)
@@ -198,7 +187,7 @@ Node* HybridTable::getPostiveStartNode(int nPower, int i)
         }
         if(pItr_node->index_ >= ncntr_array && pItr_node->index_ < nPower)
         {
-            npositiveElement++;            
+            nPosEleCount++;            
 
             if(pPNodes == nullptr)
             {                
@@ -229,17 +218,11 @@ void HybridTable::setResizedArray(int i, int val,  Node* pPos_start , int nNewSi
         {
             new_array_[pPos_start->index_] = pPos_start->val_;
 
-            //cout<<<<pPos_start->index_<<" " ;
-
         int indexCntr = 0;
-
-        //cout<<<<"\nNew Element : " << i <<" = ";
 
         while(pPos_start != nullptr)
         {
             new_array_[pPos_start->index_] = pPos_start->val_;
-
-            //cout<<<<pPos_start->index_<<" " ;
 
             pPos_start = pPos_start->next_;
         }
@@ -254,16 +237,12 @@ bool HybridTable::checkifArrayCanResize(int i, int val)
 
     Node* pPostive_Start = getPostiveStartNode(nNewSize, i);
     
-    int ntentative_sum = ncntr_array +  1  + (pPostive_Start  == nullptr ? 0 : npositiveElement);
+    int ntentative_sum = ncntr_array +  1  + (pPostive_Start  == nullptr ? 0 : nPosEleCount);
 
-    cout<<"Tentaive number : " << ntentative_sum;
-    //cout<<<<"\nMax Power: "<< i <<" : "<< nNewSize <<"\n";
-    //cout<<<<"\nTen_sum  : "<< i <<" : "<< ntentative_sum <<"\n";
     double dSizePerc = (double)ntentative_sum/nNewSize;
     
     if(dSizePerc >= 0.75)
     {
-        //cout<<<<"\nResizing the array\n";
         setResizedArray(i, val, pPostive_Start , nNewSize );
         deleteList(pPostive_Start);
         return true;
@@ -286,10 +265,8 @@ void HybridTable::deleteNode(int index)
     Node* ref = list_;
     Node* follow = nullptr;
     bool elementFound = false;
-    ////cout<<<<"Intial Memory of list_ : "<<list_<<"\n";
     while(ref != nullptr)
     {
-        ////cout<<<<"Number of iteration:"<<"\n";
         if(ref->index_ == index)
         {
             if(follow != nullptr)
@@ -309,13 +286,10 @@ void HybridTable::deleteNode(int index)
   
     if(elementFound)
     {
-       // //cout<<<<"element Found"<<"\n";
         delete ref;
         ref = nullptr;
         
     }
-    // //cout<<<<"Memory of temp : "<<ref<<"\n";
-    // //cout<<<<"Memory of list_ : "<<list_<<"\n";
 }
 
 void HybridTable::set(int i, int val)
@@ -329,18 +303,14 @@ void HybridTable::set(int i, int val)
         }
         else
         {
-            //cout<<<<"\n\n =================\nSET METHOD\n=============\n";
            if(checkifArrayCanResize(i, val))
             {
-                //cout<<<<"\nTrying to Resize Array\n";
-                //cout<<<<"\n\n New Element Added : \n"<<toString() <<"\n-- End --\n\n";
                return; 
             }
         }
         
     }
     setList(i, val);
-    //cout<<<<"\nAfter Element Added : \n"<<toString() <<"\n-- End --\n\n";
 }
 
 string HybridTable::toString() const
@@ -411,7 +381,7 @@ Node* HybridTable::deepClone(Node* phead_node) const
             tail->next_ = new Node (current->index_,current->val_) ; 
             tail = tail->next_;
         }
-        current = current->next_;
+        current = current->next_;   
     }
 return newList;
 }
