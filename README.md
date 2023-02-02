@@ -1,11 +1,4 @@
-CO3105/4105/7105 Assignment 1
-Released Oct 24, 2022; Deadline Monday Nov 14, 2022 5:00 pm
-
-This assignment is worth 30% of the module mark.
-
-This assignment assesses your knowledge in pointers, dynamic memory management, and classes (including deep copy). You will need to know the materials from weeks 11 - 15.
-
-Clarifications and amendments may be announced on the Blackboard discussion forum for this assignment. You are expected to read the forum.
+m.
 
 Motivation
 The primitive C/C++ array is a simple and efficient data structure, but it has many problems, such as requiring a fixed size to be known at creation time. If we do not know this and hence are forced to create an unnecessarily large array "just in case", it wastes a lot of space. Similar problems happen if there are some range of indices that are only very sparingly used (but used nonetheless). For example, an application may need an array where most indices used are between 0 and 10, but occasionally has some "outliers" with large indices such as 99, 147, 2046 and 9999. Then creating an array of size 10000 to cater for them wastes a lot of memory.
