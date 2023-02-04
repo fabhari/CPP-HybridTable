@@ -13,5 +13,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: makeclean
+      run: make clean
+    - name: makeclean
+      run: make deepclean
     - name: make
       run: make
